@@ -2,6 +2,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import lombok.extern.slf4j.Slf4j;
 import models.MonthSummary;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -11,11 +12,12 @@ import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ReportGenerator implements RequestHandler<Object, String> {
     DynamoDbClient dynamoDbClient = DynamoDbClient.create();
     S3Client s3Client = S3Client.create();
@@ -44,7 +46,7 @@ public class ReportGenerator implements RequestHandler<Object, String> {
         s3Client.putObject(
                 PutObjectRequest.builder().bucket(S3_BUCKET_NAME).key("report.csv").build(),
                 RequestBody.fromString(csvOutput.toString()));
-
+        log.info("CSV Report generation and upload completed on {}", LocalDateTime.now());
         return "CSV Report generation and upload complete!";
     }
 
